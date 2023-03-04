@@ -21,7 +21,7 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 // - Node objects have a distance method to determine the distance to another node.
 
 float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
-return node -> distance(*end_node);
+    return node -> distance(*end_node);
 }
 
 
@@ -57,10 +57,25 @@ current_node->FindNeighbors();
 // - Create a pointer to the node in the list with the lowest sum.
 // - Remove that node from the open_list.
 // - Return the pointer.
+bool compare(RouteModel::Node* a, RouteModel::Node* b){
 
+//some code
+return ((a -> h_value + a->g_value) > (b->h_value + b-> g_value));
+}
 RouteModel::Node *RoutePlanner::NextNode() {
+    //sort open_list
+    std::sort(open_list.begin(),open_list.end(),compare);
+    // point to the node in the list with the lowest sum
+    RouteModel::Node *lowestSumNode = open_list.back();
+    //Remove that node from the open_list
+    open_list.pop_back();
+    std::cout << "Got the lowest sum node\n";
+    return lowestSumNode;
 
 }
+
+
+
 
 
 // TODO 6: Complete the ConstructFinalPath method to return the final path found from your A* search.
@@ -77,12 +92,20 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
     std::vector<RouteModel::Node> path_found;
 
     // TODO: Implement your solution here.
+    RouteModel::Node * c = current_node;
+
+    while(c ->parent != nullptr) {
+        RouteModel::Node *p = c ->parent;
+        distance += c -> distance(*p);
+        path_found.emplace_back(*c);
+        c = c->parent;
+    } //end while
+
 
     distance *= m_Model.MetricScale(); // Multiply the distance by the scale of the map to get meters.
     return path_found;
 
 }
-
 
 // TODO 7: Write the A* Search algorithm here.
 // Tips:
@@ -95,5 +118,14 @@ void RoutePlanner::AStarSearch() {
     RouteModel::Node *current_node = nullptr;
 
     // TODO: Implement your solution here.
-
-}
+    AddNeighbors(start_node);
+    while(open_list.size() != 0) {
+        std::cout << "Getting next node" << std::endl;
+        current_node = NextNode();
+        AddNeighbors(current_node);
+        std::cout << open_list.size() << " nodes in the open list" << std::endl;
+    }
+    if(current_node == end_node) {
+        m_Model.path = ConstructFinalPath(current_node);
+    }
+} //
