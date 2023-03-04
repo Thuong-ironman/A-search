@@ -10,7 +10,8 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 
     // TODO 2: Use the m_Model.FindClosestNode method to find the closest nodes to the starting and ending coordinates.
     // Store the nodes you find in the RoutePlanner's start_node and end_node attributes.
-
+    start_node = &m_Model.FindClosestNode(start_x, start_y);
+    end_node = &m_Model.FindClosestNode(end_x, end_y);
 }
 
 
@@ -20,7 +21,7 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 // - Node objects have a distance method to determine the distance to another node.
 
 float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
-
+return node -> distance(*end_node);
 }
 
 
@@ -32,7 +33,21 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
 // - For each node in current_node.neighbors, add the neighbor to open_list and set the node's visited attribute to true.
 
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
-
+current_node->FindNeighbors();
+   for(auto v : current_node->neighbors){
+     // set the parent to current node
+     v->parent = current_node;
+     // set the h_value from the calculate h value function
+     v->h_value = CalculateHValue(v);
+     v->g_value =  current_node->g_value + current_node->distance(*v);
+     open_list.emplace_back(v);
+     v->visited = true;
+  /*   std::cout << "the current node is " << current_node << "\n";
+     std::cout << "the parent of the current node" << v->parent << "\n";
+     std::cout << "the h_value of the current node is " << v->h_value << "\n";
+     std::cout << " the g_value of the current node is " << v->g_value << "\n";
+*/
+   }
 }
 
 
