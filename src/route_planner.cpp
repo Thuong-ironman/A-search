@@ -60,7 +60,7 @@ current_node->FindNeighbors();
 bool compare(RouteModel::Node* a, RouteModel::Node* b){
 
 //some code
-return ((a -> h_value + a->g_value) > (b->h_value + b-> g_value));
+return ((a -> h_value + a->g_value) < (b->h_value + b-> g_value));
 }
 RouteModel::Node *RoutePlanner::NextNode() {
     //sort open_list
